@@ -4,7 +4,8 @@ Created on Sun Apr 12 20:59:12 2015
 
 Preliminary code for ray tracing with python
 prereq: vtk.
-Thanks to https://pyscience.wordpress.com/2014/10/05/from-ray-casting-to-ray-tracing-with-python-and-vtk/
+Thanks to
+https://pyscience.wordpress.com/2014/10/05/from-ray-casting-to-ray-tracing-with-python-and-vtk/
 
 In order to proceed, you will have to exit the renderwindow, it is waiting for your input.
 
@@ -23,6 +24,7 @@ ColorRayMiss = [1.0, 1.0, 1.0]
 l2n = lambda l: np.array(l)
 n2l = lambda n: list(n)
 
+
 def addPoint(ren, appendFilter, p, color=[0.0, 0.0, 0.0], radius=0.2):
     point = vtk.vtkSphereSource()
     point.SetCenter(p)
@@ -40,6 +42,7 @@ def addPoint(ren, appendFilter, p, color=[0.0, 0.0, 0.0], radius=0.2):
     ren.AddActor(actor)
     #appendFilter.AddInput(line.GetOutput())
     #appendFilter.Update()
+
 
 def addLine(ren, appendFilter, p1, p2, color=[0.0, 0.0, 1.0], opacity=1.0):
     line = vtk.vtkLineSource()
@@ -70,6 +73,7 @@ def isHit(obbTree, pSource, pTarget):
         return False
     return True
 
+
 def GetIntersect(obbTree, pSource, pTarget):
     # Create an empty 'vtkPoints' object to store the intersection point coordinates
     points = vtk.vtkPoints()
@@ -79,7 +83,7 @@ def GetIntersect(obbTree, pSource, pTarget):
 
     # Perform intersection
     code = obbTree.IntersectWithLine(pSource, pTarget, points, cellIds)
-    assert (code != 0)
+    assert code != 0
     # Get point-data
     pointData = points.GetData()
     # Get number of intersection points found
@@ -87,8 +91,8 @@ def GetIntersect(obbTree, pSource, pTarget):
     # Get number of intersected cell ids
     noIds = cellIds.GetNumberOfIds()
 
-    assert (noPoints == noIds)
-    assert (noPoints > 0)
+    assert noPoints == noIds
+    assert noPoints > 0
     # Loop through the found points and cells and store
     # them in lists
     pointsInter = []
@@ -98,6 +102,7 @@ def GetIntersect(obbTree, pSource, pTarget):
         cellIdsInter.append(cellIds.GetId(idx))
 
     return pointsInter, cellIdsInter
+
 
 def calcVecReflect(vecInc, vecNor):
     '''
@@ -134,7 +139,7 @@ def calcVecRefract(vecInc, vecNor, n1=1.0, n2=1.33):
     vecNor = l2n(vecNor)
     cosI = -np.dot(vecNor, vecInc)
     sinT2 = n**2*(1-cosI**2)
-    assert (sinT2 < 1.0)
+    assert sinT2 < 1.0
     if sinT2 < 1.0:
         cosT = np.sqrt(1.0-sinT2)
         vecRef = n * vecInc + (n * cosI - cosT) * vecNor
@@ -142,9 +147,10 @@ def calcVecRefract(vecInc, vecNor, n1=1.0, n2=1.33):
     else:
         return 'blah'
 
-def vtkspheresource(ren, appendFilter, srf ):
+
+def vtkspheresource(ren, appendFilter, srf):
     # Create and configure sphere, radius is focalpoint
-    location = [0.0,0.0,0.0]  # It's the source, so location is zero
+    location = [0.0, 0.0, 0.0]  # It's the source, so location is zero
     startendtheta = 180*np.arcsin(0.5*srf['diam']/srf['fp'])/np.pi
     print(startendtheta)
     sphere = vtk.vtkSphereSource()
@@ -248,7 +254,7 @@ def glyphnormals(ren, normals):
     # Create an actor for the arrow-glyphs
     glyphActorSource = vtk.vtkActor()
     glyphActorSource.SetMapper(glyphMapperSource)
-    glyphActorSource.GetProperty().SetColor([1.0,1.0,0.0])
+    glyphActorSource.GetProperty().SetColor([1.0, 1.0, 0.0])
     # Add actor
     ren.AddActor(glyphActorSource)
 
@@ -277,38 +283,38 @@ def glyphs(cells):
 def vtklenssurface(ren, appendFilter, srf):
     phi = 180*np.arcsin(0.5*srf['diam']/srf['fp'])/np.pi
     lensA = vtk.vtkSphereSource()
-    lensA.SetCenter(0.0, 0.0, 0.0) #we will move it later
+    lensA.SetCenter(0.0, 0.0, 0.0)  # we will move it later
     lensA.SetThetaResolution(100)
     lensA.SetPhiResolution(20)
     lensA.SetRadius(srf['fp'])
     lensA.SetStartPhi(180-phi)  # create partial sphere
     lensA.SetEndPhi(180)
-    #Transform
+    # Transform
     transform = vtk.vtkTransform()
     if srf['curv'] == 'positive':
         location = srf['location'][:]
-        location[2] = srf['location'][2]+srf['fp'] #if I want the location exactly, h=R-np.sqrt(R**2-(w/2)**2)
+        location[2] = srf['location'][2] + srf['fp']  # if I want the location exactly, h=R-np.sqrt(R**2-(w/2)**2)
         transform.Translate(location)
         print(location)
         print(srf['location'])
     elif srf['curv'] == 'negative':
-        #Transform
-        transform.RotateWXYZ(180,1,0,0)
-        lensBt=vtk.vtkTransformPolyDataFilter()
+        # Transform
+        transform.RotateWXYZ(180, 1, 0, 0)
+        lensBt = vtk.vtkTransformPolyDataFilter()
         lensBt.SetTransform(transform)
         lensBt.SetInputConnection(lensA.GetOutputPort())
         lensBt.Update()
         location = srf['location'][:]
-        location[2] = srf['location'][2]-srf['fp'] #if I want the location exactly, h=R-np.sqrt(R**2-(w/2)**2)
+        location[2] = srf['location'][2] - srf['fp']  # if I want the location exactly, h=R-np.sqrt(R**2-(w/2)**2)
         lensA = lensBt
-        transform = vtk.vtkTransform() #redfine transform
+        transform = vtk.vtkTransform()  # redfine transform
         transform.Translate(location)
         print(location)
         print(srf['location'])
     else:
         print("not negative or positive")
 
-    lensAt=vtk.vtkTransformPolyDataFilter()
+    lensAt = vtk.vtkTransformPolyDataFilter()
     lensAt.SetTransform(transform)
     lensAt.SetInputConnection(lensA.GetOutputPort())
     lensAt.Update()
@@ -321,9 +327,9 @@ def vtklenssurface(ren, appendFilter, srf):
     # Create actor
     lensAa = vtk.vtkActor()
     lensAa.SetMapper(lensAm)
-    lensAa.GetProperty().SetColor([0.0,0.0,1.0])  #set color to yellow
+    lensAa.GetProperty().SetColor([0.0, 0.0, 1.0])  # set color to yellow
     lensAa.GetProperty().EdgeVisibilityOn()  # show edges/wireframe
-    lensAa.GetProperty().SetEdgeColor([1.0,1.0,1.0])  #render edges as white
+    lensAa.GetProperty().SetEdgeColor([1.0, 1.0, 1.0])  # render edges as white
     # Plot and save
     ren.AddActor(lensAa)
     if vtk.VTK_MAJOR_VERSION < 6:
@@ -353,9 +359,9 @@ def vtkscreen(ren, appendFilter, screen):
     flata = vtk.vtkActor()
     # Create actor and set the mapper and the texture
     flata.SetMapper(flatm)
-    flata.GetProperty().SetColor([0.3,0.3,0.3])  #set color to grey
+    flata.GetProperty().SetColor([0.3, 0.3, 0.3])  # set color to grey
     flata.GetProperty().EdgeVisibilityOn()  # show edges/wireframe
-    flata.GetProperty().SetEdgeColor([1.0,1.0,1.0])  #render edges as white
+    flata.GetProperty().SetEdgeColor([1.0, 1.0, 1.0])  # render edges as white
     # Plot and save
     ren.AddActor(flata)
     if vtk.VTK_MAJOR_VERSION < 6:
@@ -376,7 +382,8 @@ def refract(ren, appendFilter, surface1, surface2):
     surf2 = surface2['surface']
     #normalsSource = normalsCalcSource.GetOutput().GetCellData().GetNormals()
     pointsCellCentersSurf1 = surface1['normalpoints']
-    if 'refractcells' in surface1:  #technically it is a bit weird that you have to specify which vectors are the right ones,
+    if 'refractcells' in surface1:
+        # technically it is a bit weird that you have to specify which vectors are the right ones
         normalsCalcSurf1 = surface1['refractcells']
         # vectors of refracted rays
         normalsSurf1 = normalsCalcSurf1.GetPointData().GetNormals()
@@ -453,7 +460,8 @@ def refract(ren, appendFilter, surface1, surface2):
             vecInc = n2l(l2n(pointRaySurf2) - l2n(pointSurf1))
             # Calculate the reflected ray vector
             #vecRef = calcVecReflect(vecInc, normallensA)
-            vecRef = calcVecRefract(vecInc/np.linalg.norm(vecInc), normalsurf2, surface1['rn'], surface2['rn'])
+            vecRef = calcVecRefract(vecInc / np.linalg.norm(vecInc),
+                                    normalsurf2, surface1['rn'], surface2['rn'])
             refract_vectors.InsertNextTuple(vecRef)
             ## Calculate the 'target' of the reflected ray based on 'RayCastLength'
             #pointRayReflectedTarget = n2l(l2n(pointsInter[0]) + RayCastLength*l2n(vecRef))
@@ -484,13 +492,15 @@ def refract(ren, appendFilter, surface1, surface2):
     glyphsa = glyphs(refract_polydata)
     ren.AddActor(glyphsa)
     '''
-    return intersection_points, normalsCalcSurface2,  refract_polydata
+    return intersection_points, normalsCalcSurface2, refract_polydata
+
 
 # get info for rays, they go through the mesh nodes.
 def reflect(ren, appendFilter, surface1, surface2):
     surf2 = surface2['surface']
     pointsCellCentersSurf1 = surface1['normalpoints']
-    if 'refractcells' in surface1:  #technically it is a bit weird that you have to specify which vectors are the right ones,
+    if 'refractcells' in surface1:
+        # technically it is a bit weird that you have to specify which vectors are the right ones
         normalsCalcSurf1 = surface1['refractcells']
         # vectors of refracted rays
         normalsSurf1 = normalsCalcSurf1.GetPointData().GetNormals()
@@ -498,7 +508,9 @@ def reflect(ren, appendFilter, surface1, surface2):
         normalsCalcSurf1 = surface1['reflectcells']
         # vectors of reflected rays
         normalsSurf1 = normalsCalcSurf1.GetPointData().GetNormals()
-    elif 'refractcells' not in surface1 and 'reflectcells' not in surface1 and 'normalcells' in surface1:
+    elif 'refractcells' not in surface1 and \
+         'reflectcells' not in surface1 and \
+         'normalcells' in surface1:
         normalsCalcSurf1 = surface1['normalcells']
         # vectors of normal rays
         normalsSurf1 = normalsCalcSurf1.GetOutput().GetCellData().GetNormals()
@@ -571,7 +583,7 @@ def reflect(ren, appendFilter, surface1, surface2):
             vecInc = n2l(l2n(pointRaySurf2) - l2n(pointSurf1))
             # Calculate the reflected ray vector
             vecRef = calcVecReflect(vecInc/np.linalg.norm(vecInc), normalsurf2)
-            #vecRef = calcVecRefract(vecInc/np.linalg.norm(vecInc), normalsurf2, surface1['rn'], surface2['rn'])
+            # vecRef = calcVecRefract(vecInc/np.linalg.norm(vecInc), normalsurf2, surface1['rn'], surface2['rn'])
             reflect_vectors.InsertNextTuple(vecRef)
             ## Calculate the 'target' of the reflected ray based on 'RayCastLength'
             #pointRayReflectedTarget = n2l(l2n(pointsInter[0]) + RayCastLength*l2n(vecRef))
@@ -602,13 +614,13 @@ def reflect(ren, appendFilter, surface1, surface2):
     glyphsa = glyphs(refract_polydata)
     ren.AddActor(glyphsa)
     '''
-    return intersection_points, normalsCalcSurface2,  reflect_polydata
+    return intersection_points, normalsCalcSurface2, reflect_polydata
 
 
-def run(surfaces, project, Directory, scene, plot=1):
+def run(surfaces, project, Directory, scene, plot=False):
     ### write output to vtp file
     writer = vtk.vtkXMLPolyDataWriter()
-    filename = Directory+project+"%04d.vtp" % Scene
+    filename = Directory+project+"%04d.vtp" % scene
     writer.SetFileName(filename)
     appendFilter = vtk.vtkAppendPolyData()
 
@@ -616,7 +628,7 @@ def run(surfaces, project, Directory, scene, plot=1):
     ren = vtk.vtkRenderer()
     renWin = vtk.vtkRenderWindow()
     renWin.AddRenderer(ren)
-    renWin.SetSize(600,600)
+    renWin.SetSize(600, 600)
     iren = vtk.vtkRenderWindowInteractor()
     iren.SetRenderWindow(renWin)
     iren.Initialize()
@@ -624,9 +636,9 @@ def run(surfaces, project, Directory, scene, plot=1):
     for srf in surfaces:
         # Fill the scene
         if srf['type'] == 'source':
-            #Draw source
-            srf['surface'], srf['normalpoints'], srf['normalcells'] = vtkspheresource(ren, appendFilter,srf)
-            #Also draw glyphs to see where lines are going
+            # Draw source
+            srf['surface'], srf['normalpoints'], srf['normalcells'] = vtkspheresource(ren, appendFilter, srf)
+            # Also draw glyphs to see where lines are going
             glyphnormals(ren, srf['normalcells'])
             renWin.Render()
 
@@ -637,14 +649,14 @@ def run(surfaces, project, Directory, scene, plot=1):
             srf['normalpoints'], srf['normalcells'], srf['refractcells'] = refract(ren, appendFilter, rays, srf)
             renWin.Render()
 
-        elif srf['type'] == 'screen' and 'normalcells' in rays :
+        elif srf['type'] == 'screen' and 'normalcells' in rays:
             # Draw screen
             srf['surface'] = vtkscreen(ren, appendFilter, srf)
             renWin.Render()
             srf['normalpoints'], srf['normalcells'], srf['reflectcells'] = reflect(ren, appendFilter, rays, srf)
             renWin.Render()
             # Now plot the screen using matplotlib
-            if plot == 1:
+            if plot:
                 # Get list from screen reflect cells
                 plotlist = range(srf['normalpoints'].GetNumberOfPoints())
                 for idx in range(srf['normalpoints'].GetNumberOfPoints()):
@@ -654,7 +666,7 @@ def run(surfaces, project, Directory, scene, plot=1):
         rays = srf.copy()
     point = vtk.vtkSphereSource()
     point.SetRadius(1)
-    point.SetCenter(0.0,0.0,30.0)
+    point.SetCenter(0.0, 0.0, 30.0)
     pointm = vtk.vtkPolyDataMapper()
     if vtk.VTK_MAJOR_VERSION < 6:
         pointm.SetInput(point.GetOutput())
@@ -672,7 +684,8 @@ def run(surfaces, project, Directory, scene, plot=1):
     writer = vtk.vtkPNGWriter()
     writer.SetFileName(Directory+project+"%04d.png" % Scene)
     writer.SetInput(w2if.GetOutput())
-    writer.Write() '''
+    writer.Write()
+    '''
     ### write output to vtp file
     polydatacontainer = appendFilter
     if vtk.VTK_MAJOR_VERSION < 6:
@@ -685,46 +698,47 @@ def run(surfaces, project, Directory, scene, plot=1):
     #del renWin, iren
 
 #end def main
-# del iren, renWin
-surfaces = [{'type' :'source',
-             'fp' :1e3,
-             'diam' : 10,
-             'resolution': 4,
-             'rn': 1.0 },
-             {'type' :'lens',
-             'fp' :75,
-             'diam' : 25,
-             'location': [0.0, 0.0, 30],
-             'rn': 1.5,
-             'curv': 'positive' },    # a positive curvature means the focal point is further from the source than the location
-            {'type': 'lens',
-             'fp' :75,
-             'diam' : 25,
-             'location': [0.0, 0.0, 33],
-             'rn': 1.0,
-             'curv': 'negative'},    # a positive curvature means the focal point is further from the source than the location
-            {'type': 'screen',
-             'width': 50,
-             'height': 50,
-             'center': [0.0, 0.0, 130.0],  # Only using z, I can still only deal with center axis optics
-             'normal': [0.0, 0.0, -1.0] }]  # Not using, the screen is normal on the central axis
 
-#assert 180*np.arcsin(0.5*source['diam']/source['fp'])/np.pi, "source is not well defined"
+def demos():
+    import os
+    surfaces = [{'type' :'source',
+                 'fp': 1e3,
+                 'diam': 10,
+                 'resolution': 4,
+                 'rn': 1.0},
+                {'type': 'lens',
+                 'fp': 75,
+                 'diam': 25,
+                 'location': [0.0, 0.0, 30],
+                 'rn': 1.5,
+                 'curv': 'positive'},    # a positive curvature means the focal point is further from the source than the location
+                {'type': 'lens',
+                 'fp' :75,
+                 'diam' : 25,
+                 'location': [0.0, 0.0, 33],
+                 'rn': 1.0,
+                 'curv': 'negative'},    # a positive curvature means the focal point is further from the source than the location
+                {'type': 'screen',
+                 'width': 50,
+                 'height': 50,
+                 'center': [0.0, 0.0, 130.0],  # Only using z, I can still only deal with center axis optics
+                 'normal': [0.0, 0.0, -1.0]}]  # Not using, the screen is normal on the central axis
+    project = 'test'
+    Directory = os.getcwd()
+    Scene = 0
+    run(surfaces, project, Directory, Scene, plot=False)
+    #del iren, renWin
 
-import os
-project = 'test'
-Directory = os.getcwd()
-Scene = 0
-run(surfaces, project, Directory, Scene, plot=0)
-#del iren, renWin
+    Scene = 1
+    surfaces[1]['location'] = [0.0, 2.0, 30]
+    surfaces[2]['location'] = [0.0, 2.0, 33]
+    run(surfaces, project, Directory, Scene, plot=False)
+    #del iren, renWin
 
-Scene  = 1
-surfaces[1]['location'] = [0.0, 2.0, 30]
-surfaces[2]['location'] = [0.0, 2.0, 33]
-run(surfaces, project, Directory, Scene, plot=0)
-#del iren, renWin
+    Scene = 2
+    surfaces[1]['location'] = [0.0, 4.0, 30]
+    surfaces[2]['location'] = [0.0, 4.0, 33]
+    run(surfaces, project, Directory, Scene, plot=False)
 
-Scene  = 2
-surfaces[1]['location'] = [0.0, 4.0, 30]
-surfaces[2]['location'] = [0.0, 4.0, 33]
-run(surfaces, project, Directory, Scene, plot=0)
+if __name__ == '__main__':
+    demos()

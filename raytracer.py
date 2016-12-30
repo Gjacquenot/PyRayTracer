@@ -134,10 +134,10 @@ def calcVecRefract(vecInc, vecNor, n1=1.0, n2=1.33):
     vecInc = l2n(vecInc)
     vecNor = l2n(vecNor)
     cosI = -np.dot(vecNor, vecInc)
-    sinT2 = n**2*(1-cosI**2)
+    sinT2 = n**2 * (1 - cosI**2)
     assert sinT2 < 1.0
     if sinT2 < 1.0:
-        cosT = np.sqrt(1.0-sinT2)
+        cosT = np.sqrt(1.0 - sinT2)
         vecRef = n * vecInc + (n * cosI - cosT) * vecNor
         return n2l(vecRef)
     else:
@@ -152,11 +152,11 @@ def vtkspheresource(ren, appendFilter, srf):
     sphere = vtk.vtkSphereSource()
     sphere.SetCenter(location)
     sphere.SetRadius(srf['fp'])
-    sphere.SetThetaResolution(srf['resolution']*3)
+    sphere.SetThetaResolution(srf['resolution'] * 3)
     sphere.SetPhiResolution(srf['resolution'])
     # sphere.SetStartTheta(90-startendtheta)  # create partial sphere
     # sphere.SetEndTheta(90+startendtheta)
-    sphere.SetStartPhi(180-startendtheta)  # create partial sphere
+    sphere.SetStartPhi(180 - startendtheta)  # create partial sphere
     sphere.SetEndPhi(180)
     # Rotate and move such that the source goes through 0,0,0 and is oriented along the z axis
     transform = vtk.vtkTransform()
@@ -175,7 +175,7 @@ def vtkspheresource(ren, appendFilter, srf):
     # Create actor and set the mapper and the texture
     actorSphere = vtk.vtkActor()
     actorSphere.SetMapper(mapperSphere)
-    actorSphere.GetProperty().SetColor([1.0, 0.0, 0.0])  #set color to yellow
+    actorSphere.GetProperty().SetColor([1.0, 0.0, 0.0])  # set color to yellow
     actorSphere.GetProperty().EdgeVisibilityOn()  # show edges/wireframe
     actorSphere.GetProperty().SetEdgeColor([0.0, 0.0, 0.0])  # render edges as white
     # Create points
@@ -227,8 +227,9 @@ def vtkspheresource(ren, appendFilter, srf):
     ren.SetActiveCamera(camera)
     return transformFilter, normal_points, normalsCalcSource
 
+
 def glyphnormals(ren, normals):
-    # this doesn't work, it will always go to the normal,
+    # this doesn't work, it will always go to the normal
     dummy_cellCenterCalcSource = vtk.vtkCellCenters()
     dummy_cellCenterCalcSource.VertexCellsOn()
     dummy_cellCenterCalcSource.SetInputConnection(normals.GetOutputPort())
@@ -277,13 +278,13 @@ def glyphs(cells):
 
 
 def vtklenssurface(ren, appendFilter, srf):
-    phi = 180*np.arcsin(0.5*srf['diam']/srf['fp'])/np.pi
+    phi = 180 * np.arcsin(0.5 * srf['diam'] / srf['fp']) / np.pi
     lensA = vtk.vtkSphereSource()
     lensA.SetCenter(0.0, 0.0, 0.0)  # we will move it later
     lensA.SetThetaResolution(100)
     lensA.SetPhiResolution(20)
     lensA.SetRadius(srf['fp'])
-    lensA.SetStartPhi(180-phi)  # create partial sphere
+    lensA.SetStartPhi(180 - phi)  # create partial sphere
     lensA.SetEndPhi(180)
     # Transform
     transform = vtk.vtkTransform()
@@ -341,15 +342,16 @@ def vtklenssurface(ren, appendFilter, srf):
     ren.SetActiveCamera(camera)
     return lensAt
 
+
 def vtkscreen(ren, appendFilter, screen):
     # Create a pentagon
     flat = vtk.vtkRegularPolygonSource()
-    #polygonSource.GeneratePolygonOff()
+    # polygonSource.GeneratePolygonOff()
     flat.SetNumberOfSides(4)
     flat.SetRadius(screen['width'])
     flat.SetCenter(screen['center'])
     flat.Update()
-     # Create mapper and set the mapped texture as input
+    # Create mapper and set the mapped texture as input
     flatm = vtk.vtkPolyDataMapper()
     flatm.SetInputConnection(flat.GetOutputPort())
     flata = vtk.vtkActor()
@@ -373,10 +375,11 @@ def vtkscreen(ren, appendFilter, screen):
     ren.SetActiveCamera(camera)
     return flat
 
-# get info for rays, they go through the mesh nodes.
+
 def refract(ren, appendFilter, surface1, surface2):
+    # get info for rays, they go through the mesh nodes.
     surf2 = surface2['surface']
-    #normalsSource = normalsCalcSource.GetOutput().GetCellData().GetNormals()
+    # normalsSource = normalsCalcSource.GetOutput().GetCellData().GetNormals()
     pointsCellCentersSurf1 = surface1['normalpoints']
     if 'refractcells' in surface1:
         # technically it is a bit weird that you have to specify which vectors are the right ones
@@ -437,7 +440,7 @@ def refract(ren, appendFilter, surface1, surface2):
         # Get normal vector at that cell
         normalsurf1 = normalsSurf1.GetTuple(idx)
         # Calculate the 'target' of the ray based on 'RayCastLength'
-        pointRaySurf2 = n2l(l2n(pointSurf1) + RayCastLength*l2n(normalsurf1))
+        pointRaySurf2 = n2l(l2n(pointSurf1) + RayCastLength * l2n(normalsurf1))
         # Check if there are any intersections for the given ray
         if isHit(obbsurf2, pointSurf1, pointRaySurf2):
             # Retrieve coordinates of intersection points and intersected cell ids
@@ -455,15 +458,15 @@ def refract(ren, appendFilter, surface1, surface2):
             # Calculate the incident ray vector
             vecInc = n2l(l2n(pointRaySurf2) - l2n(pointSurf1))
             # Calculate the reflected ray vector
-            #vecRef = calcVecReflect(vecInc, normallensA)
+            # vecRef = calcVecReflect(vecInc, normallensA)
             vecRef = calcVecRefract(vecInc / np.linalg.norm(vecInc),
                                     normalsurf2, surface1['rn'], surface2['rn'])
             refract_vectors.InsertNextTuple(vecRef)
-            ## Calculate the 'target' of the reflected ray based on 'RayCastLength'
-            #pointRayReflectedTarget = n2l(l2n(pointsInter[0]) + RayCastLength*l2n(vecRef))
-            ##pointRayReflectedTarget = n2l(l2n(pointsInter[0]) - RayCastLength*l2n(vecRef))
-            ## Render lines/rays bouncing off lensA with a 'ColorRayReflected' color
-            #addLine(ren, pointsInter[0], pointRayReflectedTarget, ColorRay)
+            # Calculate the 'target' of the reflected ray based on 'RayCastLength'
+            # pointRayReflectedTarget = n2l(l2n(pointsInter[0]) + RayCastLength*l2n(vecRef))
+            # # pointRayReflectedTarget = n2l(l2n(pointsInter[0]) - RayCastLength*l2n(vecRef))
+            # Render lines/rays bouncing off lensA with a 'ColorRayReflected' color
+            # addLine(ren, pointsInter[0], pointRayReflectedTarget, ColorRay)
 
     # export normals at lens surface
     normalsCalcSurface2 = vtk.vtkPolyDataNormals()
@@ -561,7 +564,7 @@ def reflect(ren, appendFilter, surface1, surface2):
         # Get normal vector at that cell
         normalsurf1 = normalsSurf1.GetTuple(idx)
         # Calculate the 'target' of the ray based on 'RayCastLength'
-        pointRaySurf2 = n2l(l2n(pointSurf1) + RayCastLength*l2n(normalsurf1))
+        pointRaySurf2 = n2l(l2n(pointSurf1) + RayCastLength * l2n(normalsurf1))
         # Check if there are any intersections for the given ray
         if isHit(obbsurf2, pointSurf1, pointRaySurf2):
             # Retrieve coordinates of intersection points and intersected cell ids
@@ -579,14 +582,14 @@ def reflect(ren, appendFilter, surface1, surface2):
             # Calculate the incident ray vector
             vecInc = n2l(l2n(pointRaySurf2) - l2n(pointSurf1))
             # Calculate the reflected ray vector
-            vecRef = calcVecReflect(vecInc/np.linalg.norm(vecInc), normalsurf2)
+            vecRef = calcVecReflect(vecInc / np.linalg.norm(vecInc), normalsurf2)
             # vecRef = calcVecRefract(vecInc/np.linalg.norm(vecInc), normalsurf2, surface1['rn'], surface2['rn'])
             reflect_vectors.InsertNextTuple(vecRef)
-            ## Calculate the 'target' of the reflected ray based on 'RayCastLength'
-            #pointRayReflectedTarget = n2l(l2n(pointsInter[0]) + RayCastLength*l2n(vecRef))
-            ##pointRayReflectedTarget = n2l(l2n(pointsInter[0]) - RayCastLength*l2n(vecRef))
-            ## Render lines/rays bouncing off lensA with a 'ColorRayReflected' color
-            #addLine(ren, pointsInter[0], pointRayReflectedTarget, ColorRay)
+            # Calculate the 'target' of the reflected ray based on 'RayCastLength'
+            # pointRayReflectedTarget = n2l(l2n(pointsInter[0]) + RayCastLength*l2n(vecRef))
+            # pointRayReflectedTarget = n2l(l2n(pointsInter[0]) - RayCastLength*l2n(vecRef))
+            # Render lines/rays bouncing off lensA with a 'ColorRayReflected' color
+            # addLine(ren, pointsInter[0], pointRayReflectedTarget, ColorRay)
 
     # Export normals at surface
     normalsCalcSurface2 = vtk.vtkPolyDataNormals()
@@ -617,7 +620,7 @@ def reflect(ren, appendFilter, surface1, surface2):
 def run(surfaces, project, Directory, scene, plot=False):
     # Write output to vtp file
     writer = vtk.vtkXMLPolyDataWriter()
-    filename = Directory+project+"%04d.vtp" % scene
+    filename = Directory + project + "%04d.vtp" % scene
     writer.SetFileName(filename)
     appendFilter = vtk.vtkAppendPolyData()
 
@@ -696,9 +699,7 @@ def run(surfaces, project, Directory, scene, plot=False):
     writer.Write()
     # Check results in viewer, by exit screen, proceed
     iren.Start()
-    # del renWin, iren
 
-#end def main
 
 def demos():
     import os

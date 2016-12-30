@@ -116,7 +116,7 @@ def calcVecReflect(vecInc, vecNor):
     vecInc = l2n(vecInc)
     vecNor = l2n(vecNor)
     cosI = -np.dot(vecNor, vecInc)
-    vecRef = vecInc + 2*cosI*vecNor
+    vecRef = vecInc + 2 * cosI * vecNor
     return n2l(vecRef)
 
 
@@ -125,16 +125,16 @@ def calcVecRefract(vecInc, vecNor, n1=1.0, n2=1.33):
     http://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf
     Vector refract(Const Vector& normal, const Vector& incident, double n1, double n2)
     {
-    	const double n = n1/n2;
-    	const double cosI = -dot(normal, incident)
-    	const double sinT2 = n*n*(1.0-cosI*cosI);
-    	if (sinT2 > 1.0) return Vactor::invalid; //TIR
-    	const double cosT = sqrt(1.0 - sinT2);
-    	return n * incident + (n * cosI - cosT) * normal;
+        const double n = n1/n2;
+        const double cosI = -dot(normal, incident)
+        const double sinT2 = n*n*(1.0-cosI*cosI);
+        if (sinT2 > 1.0) return Vactor::invalid; //TIR
+        const double cosT = sqrt(1.0 - sinT2);
+        return n * incident + (n * cosI - cosT) * normal;
     }
     n1 = first medium, n2 is second medium
     '''
-    n = n1/n2
+    n = n1 / n2
     vecInc = l2n(vecInc)
     vecNor = l2n(vecNor)
     cosI = -np.dot(vecNor, vecInc)
@@ -151,18 +151,18 @@ def calcVecRefract(vecInc, vecNor, n1=1.0, n2=1.33):
 def vtkspheresource(ren, appendFilter, srf):
     # Create and configure sphere, radius is focalpoint
     location = [0.0, 0.0, 0.0]  # It's the source, so location is zero
-    startendtheta = 180*np.arcsin(0.5*srf['diam']/srf['fp'])/np.pi
+    startendtheta = 180 * np.arcsin(0.5 * srf['diam'] / srf['fp']) / np.pi
     print(startendtheta)
     sphere = vtk.vtkSphereSource()
     sphere.SetCenter(location)
     sphere.SetRadius(srf['fp'])
     sphere.SetThetaResolution(srf['resolution']*3)
     sphere.SetPhiResolution(srf['resolution'])
-    #sphere.SetStartTheta(90-startendtheta)  # create partial sphere
-    #sphere.SetEndTheta(90+startendtheta)
+    # sphere.SetStartTheta(90-startendtheta)  # create partial sphere
+    # sphere.SetEndTheta(90+startendtheta)
     sphere.SetStartPhi(180-startendtheta)  # create partial sphere
     sphere.SetEndPhi(180)
-    # rotate and move such that the source goes through 0,0,0 and is oriented along the z axis
+    # Rotate and move such that the source goes through 0,0,0 and is oriented along the z axis
     transform = vtk.vtkTransform()
     transform.RotateWXYZ(180, 1, 0, 0)
     transform.Translate(0.0, 0.0, srf['fp'])
@@ -488,7 +488,8 @@ def refract(ren, appendFilter, surface1, surface2):
     refract_polydata.SetPoints(intersection_points)
     refract_polydata.GetPointData().SetNormals(refract_vectors)
     # Return data for next surface, all has been drawn
-    '''# Test glyphs,   turned off for now
+    '''
+    # Test glyphs, turned off for now
     glyphsa = glyphs(refract_polydata)
     ren.AddActor(glyphsa)
     '''
@@ -591,7 +592,7 @@ def reflect(ren, appendFilter, surface1, surface2):
             ## Render lines/rays bouncing off lensA with a 'ColorRayReflected' color
             #addLine(ren, pointsInter[0], pointRayReflectedTarget, ColorRay)
 
-    # export normals at surface
+    # Export normals at surface
     normalsCalcSurface2 = vtk.vtkPolyDataNormals()
     normalsCalcSurface2.SetInputConnection(surf2.GetOutputPort())
     # Disable normal calculation at cell vertices
@@ -618,13 +619,13 @@ def reflect(ren, appendFilter, surface1, surface2):
 
 
 def run(surfaces, project, Directory, scene, plot=False):
-    ### write output to vtp file
+    # Write output to vtp file
     writer = vtk.vtkXMLPolyDataWriter()
     filename = Directory+project+"%04d.vtp" % scene
     writer.SetFileName(filename)
     appendFilter = vtk.vtkAppendPolyData()
 
-    ### Create a render window
+    # Create a render window
     ren = vtk.vtkRenderer()
     renWin = vtk.vtkRenderWindow()
     renWin.AddRenderer(ren)
@@ -637,7 +638,8 @@ def run(surfaces, project, Directory, scene, plot=False):
         # Fill the scene
         if srf['type'] == 'source':
             # Draw source
-            srf['surface'], srf['normalpoints'], srf['normalcells'] = vtkspheresource(ren, appendFilter, srf)
+            srf['surface'], srf['normalpoints'], srf['normalcells'] = \
+                vtkspheresource(ren, appendFilter, srf)
             # Also draw glyphs to see where lines are going
             glyphnormals(ren, srf['normalcells'])
             renWin.Render()
@@ -646,14 +648,16 @@ def run(surfaces, project, Directory, scene, plot=False):
             # Draw refractive surfaces
             srf['surface'] = vtklenssurface(ren, appendFilter, srf)
             renWin.Render()
-            srf['normalpoints'], srf['normalcells'], srf['refractcells'] = refract(ren, appendFilter, rays, srf)
+            srf['normalpoints'], srf['normalcells'], srf['refractcells'] = \
+                refract(ren, appendFilter, rays, srf)
             renWin.Render()
 
         elif srf['type'] == 'screen' and 'normalcells' in rays:
             # Draw screen
             srf['surface'] = vtkscreen(ren, appendFilter, srf)
             renWin.Render()
-            srf['normalpoints'], srf['normalcells'], srf['reflectcells'] = reflect(ren, appendFilter, rays, srf)
+            srf['normalpoints'], srf['normalcells'], srf['reflectcells'] = \
+                reflect(ren, appendFilter, rays, srf)
             renWin.Render()
             # Now plot the screen using matplotlib
             if plot:
@@ -677,7 +681,8 @@ def run(surfaces, project, Directory, scene, plot=False):
     ren.AddActor(pointa)
     renWin.Render()
 
-    '''# export scene to image
+    '''
+    # export scene to image
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(renWin)
     w2if.Update()
@@ -686,7 +691,7 @@ def run(surfaces, project, Directory, scene, plot=False):
     writer.SetInput(w2if.GetOutput())
     writer.Write()
     '''
-    ### write output to vtp file
+    # Write output to vtp file
     polydatacontainer = appendFilter
     if vtk.VTK_MAJOR_VERSION < 6:
         writer.SetInput(polydatacontainer.GetOutput())
@@ -695,13 +700,13 @@ def run(surfaces, project, Directory, scene, plot=False):
     writer.Write()
     # Check results in viewer, by exit screen, proceed
     iren.Start()
-    #del renWin, iren
+    # del renWin, iren
 
 #end def main
 
 def demos():
     import os
-    surfaces = [{'type' :'source',
+    surfaces = [{'type': 'source',
                  'fp': 1e3,
                  'diam': 10,
                  'resolution': 4,
@@ -713,8 +718,8 @@ def demos():
                  'rn': 1.5,
                  'curv': 'positive'},    # a positive curvature means the focal point is further from the source than the location
                 {'type': 'lens',
-                 'fp' :75,
-                 'diam' : 25,
+                 'fp': 75,
+                 'diam': 25,
                  'location': [0.0, 0.0, 33],
                  'rn': 1.0,
                  'curv': 'negative'},    # a positive curvature means the focal point is further from the source than the location
@@ -727,13 +732,11 @@ def demos():
     Directory = os.getcwd()
     Scene = 0
     run(surfaces, project, Directory, Scene, plot=False)
-    #del iren, renWin
 
     Scene = 1
     surfaces[1]['location'] = [0.0, 2.0, 30]
     surfaces[2]['location'] = [0.0, 2.0, 33]
     run(surfaces, project, Directory, Scene, plot=False)
-    #del iren, renWin
 
     Scene = 2
     surfaces[1]['location'] = [0.0, 4.0, 30]

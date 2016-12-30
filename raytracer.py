@@ -20,7 +20,6 @@ ColorRay = [1.0, 1.0, 0.0]
 ColorRayMiss = [1.0, 1.0, 1.0]
 
 l2n = lambda l: np.array(l)
-n2l = lambda n: list(n)
 
 
 def addPoint(ren, p, color=[0.0, 0.0, 0.0], radius=0.2):
@@ -113,7 +112,7 @@ def calcVecReflect(vecInc, vecNor):
     vecNor = l2n(vecNor)
     cosI = -np.dot(vecNor, vecInc)
     vecRef = vecInc + 2 * cosI * vecNor
-    return n2l(vecRef)
+    return list(vecRef)
 
 
 def calcVecRefract(vecInc, vecNor, n1=1.0, n2=1.33):
@@ -139,7 +138,7 @@ def calcVecRefract(vecInc, vecNor, n1=1.0, n2=1.33):
     if sinT2 < 1.0:
         cosT = np.sqrt(1.0 - sinT2)
         vecRef = n * vecInc + (n * cosI - cosT) * vecNor
-        return n2l(vecRef)
+        return list(vecRef)
     else:
         return 'blah'
 
@@ -440,7 +439,7 @@ def refract(ren, appendFilter, surface1, surface2):
         # Get normal vector at that cell
         normalsurf1 = normalsSurf1.GetTuple(idx)
         # Calculate the 'target' of the ray based on 'RayCastLength'
-        pointRaySurf2 = n2l(l2n(pointSurf1) + RayCastLength * l2n(normalsurf1))
+        pointRaySurf2 = list(l2n(pointSurf1) + RayCastLength * l2n(normalsurf1))
         # Check if there are any intersections for the given ray
         if isHit(obbsurf2, pointSurf1, pointRaySurf2):
             # Retrieve coordinates of intersection points and intersected cell ids
@@ -456,15 +455,15 @@ def refract(ren, appendFilter, surface1, surface2):
             # Insert the normal vector of the intersection cell in the dummy container
             normal_vectors.InsertNextTuple(normalsurf2)
             # Calculate the incident ray vector
-            vecInc = n2l(l2n(pointRaySurf2) - l2n(pointSurf1))
+            vecInc = list(l2n(pointRaySurf2) - l2n(pointSurf1))
             # Calculate the reflected ray vector
             # vecRef = calcVecReflect(vecInc, normallensA)
             vecRef = calcVecRefract(vecInc / np.linalg.norm(vecInc),
                                     normalsurf2, surface1['rn'], surface2['rn'])
             refract_vectors.InsertNextTuple(vecRef)
             # Calculate the 'target' of the reflected ray based on 'RayCastLength'
-            # pointRayReflectedTarget = n2l(l2n(pointsInter[0]) + RayCastLength*l2n(vecRef))
-            # # pointRayReflectedTarget = n2l(l2n(pointsInter[0]) - RayCastLength*l2n(vecRef))
+            # pointRayReflectedTarget = list(l2n(pointsInter[0]) + RayCastLength*l2n(vecRef))
+            # # pointRayReflectedTarget = list(l2n(pointsInter[0]) - RayCastLength*l2n(vecRef))
             # Render lines/rays bouncing off lensA with a 'ColorRayReflected' color
             # addLine(ren, pointsInter[0], pointRayReflectedTarget, ColorRay)
 
@@ -564,7 +563,7 @@ def reflect(ren, appendFilter, surface1, surface2):
         # Get normal vector at that cell
         normalsurf1 = normalsSurf1.GetTuple(idx)
         # Calculate the 'target' of the ray based on 'RayCastLength'
-        pointRaySurf2 = n2l(l2n(pointSurf1) + RayCastLength * l2n(normalsurf1))
+        pointRaySurf2 = list(l2n(pointSurf1) + RayCastLength * l2n(normalsurf1))
         # Check if there are any intersections for the given ray
         if isHit(obbsurf2, pointSurf1, pointRaySurf2):
             # Retrieve coordinates of intersection points and intersected cell ids
@@ -580,14 +579,14 @@ def reflect(ren, appendFilter, surface1, surface2):
             # Insert the normal vector of the intersection cell in the dummy container
             normal_vectors.InsertNextTuple(normalsurf2)
             # Calculate the incident ray vector
-            vecInc = n2l(l2n(pointRaySurf2) - l2n(pointSurf1))
+            vecInc = list(l2n(pointRaySurf2) - l2n(pointSurf1))
             # Calculate the reflected ray vector
             vecRef = calcVecReflect(vecInc / np.linalg.norm(vecInc), normalsurf2)
             # vecRef = calcVecRefract(vecInc/np.linalg.norm(vecInc), normalsurf2, surface1['rn'], surface2['rn'])
             reflect_vectors.InsertNextTuple(vecRef)
             # Calculate the 'target' of the reflected ray based on 'RayCastLength'
-            # pointRayReflectedTarget = n2l(l2n(pointsInter[0]) + RayCastLength*l2n(vecRef))
-            # pointRayReflectedTarget = n2l(l2n(pointsInter[0]) - RayCastLength*l2n(vecRef))
+            # pointRayReflectedTarget = list(l2n(pointsInter[0]) + RayCastLength*l2n(vecRef))
+            # pointRayReflectedTarget = list(l2n(pointsInter[0]) - RayCastLength*l2n(vecRef))
             # Render lines/rays bouncing off lensA with a 'ColorRayReflected' color
             # addLine(ren, pointsInter[0], pointRayReflectedTarget, ColorRay)
 

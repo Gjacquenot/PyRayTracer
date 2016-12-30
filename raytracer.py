@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Apr 12 20:59:12 2015
+Preliminary code for ray tracing with Python and VTK
 
-Preliminary code for ray tracing with python
-prereq: vtk.
 Thanks to
 https://pyscience.wordpress.com/2014/10/05/from-ray-casting-to-ray-tracing-with-python-and-vtk/
 
 In order to proceed, you will have to exit the renderwindow, it is waiting for your input.
 
-@author: jaap
+@author: Adamos Kyriokou, Jaap Verheggen, Guillaume Jacquenot
 """
 
 import vtk
@@ -25,23 +23,21 @@ l2n = lambda l: np.array(l)
 n2l = lambda n: list(n)
 
 
-def addPoint(ren, appendFilter, p, color=[0.0, 0.0, 0.0], radius=0.2):
+def addPoint(ren, p, color=[0.0, 0.0, 0.0], radius=0.2):
     point = vtk.vtkSphereSource()
     point.SetCenter(p)
     point.SetRadius(radius)
     point.SetPhiResolution(100)
     point.SetThetaResolution(100)
-    # map point
+    # Map point
     mapper = vtk.vtkPolyDataMapper()
     mapper.SetInputConnection(point.GetOutputPort())
-    # set actor for point
+    # Set actor for point
     actor = vtk.vtkActor()
     actor.SetMapper(mapper)
     actor.GetProperty().SetColor(color)
-    #draw point in renderer
+    # Draw point in renderer
     ren.AddActor(actor)
-    #appendFilter.AddInput(line.GetOutput())
-    #appendFilter.Update()
 
 
 def addLine(ren, appendFilter, p1, p2, color=[0.0, 0.0, 1.0], opacity=1.0):
@@ -195,7 +191,7 @@ def vtkspheresource(ren, appendFilter, srf):
     normal_points = vtk.vtkPoints()
     # Loop through all point centers and add a point-actor through 'addPoint'
     for idx in range(pointsCellCentersSource.GetNumberOfPoints()):
-        addPoint(ren, False, pointsCellCentersSource.GetPoint(idx), [1.0, 1.0, 0.0])
+        addPoint(ren, pointsCellCentersSource.GetPoint(idx), [1.0, 1.0, 0.0])
         normal_points.InsertNextPoint(pointsCellCentersSource.GetPoint(idx))
 
     # Create a new 'vtkPolyDataNormals' and connect to the 'Source' half-sphere
@@ -449,7 +445,7 @@ def refract(ren, appendFilter, surface1, surface2):
             # Render lines/rays emanating from the Source. Rays that intersect are
             addLine(ren, appendFilter, pointSurf1, pointsInter[0], ColorRay, opacity=0.25)
             # Render intersection points
-            addPoint(ren, False, pointsInter[0], ColorRay)
+            addPoint(ren, pointsInter[0], ColorRay)
             # Get the normal vector at the surf2 cell that intersected with the ray
             normalsurf2 = normalsSurf2.GetTuple(cellIdsInter[0])
             # Insert the coordinates of the intersection point in the dummy container
@@ -573,7 +569,7 @@ def reflect(ren, appendFilter, surface1, surface2):
             # Render lines/rays emanating from the Source. Rays that intersect are
             addLine(ren, appendFilter, pointSurf1, pointsInter[0], ColorRay, opacity=0.25)
             # Render intersection points
-            addPoint(ren, False, pointsInter[0], ColorRay)
+            addPoint(ren, pointsInter[0], ColorRay)
             # Get the normal vector at the surf2 cell that intersected with the ray
             normalsurf2 = normalsSurf2.GetTuple(cellIdsInter[0])
             # Insert the coordinates of the intersection point in the dummy container

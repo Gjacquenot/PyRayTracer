@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import vtk.util.numpy_support as ns
 
-import raytrace as ray
+import raytracer as ray
 
 
 def glyphs(cells, color=[1.0, 1.0, 1.0], size=1):
@@ -535,9 +535,7 @@ def sphere(srf):
 def objectsource(srf1, srf2, ratio=0.8):
     # make points on surface 1 should this be elliptical?
     # Use given points, don't create them, so all poitns on vertices of surf1 surface
-    sourcepoints = range(srf1['raypoints'].GetNumberOfPoints())
-    for idx in range(srf1['raypoints'].GetNumberOfPoints()):
-        sourcepoints[idx] = srf1['raypoints'].GetPoint(idx)
+    sourcepoints = [srf1['raypoints'].GetPoint(i) for i in range(srf1['raypoints'].GetNumberOfPoints())]
     # Make points on target
     targetlist = [[0.0, 0.0, 0.0]]
     if 'diameter' in srf2:
@@ -574,9 +572,7 @@ def objectsource(srf1, srf2, ratio=0.8):
     pgt.SetInputData(polydata)
     pgt.Update()
     # And now I'm going to extract the points again
-    targetpoints = range(pgt.GetOutput().GetNumberOfPoints())
-    for idx in range(pgt.GetOutput().GetNumberOfPoints()):
-        targetpoints[idx] = pgt.GetOutput().GetPoint(idx)
+    targetpoints = [pgt.GetOutput().GetPoint(i) for i in range(pgt.GetOutput().GetNumberOfPoints())]
     # Get normal vector from source to target, 5 vectors per point
     object_points = vtk.vtkPoints()
     object_points.SetDataTypeToDouble()

@@ -615,14 +615,89 @@ def reflect(ren, appendFilter, surface1, surface2):
     return intersection_points, normalsCalcSurface2, reflect_polydata
 
 
+def random_quaternion(rand=None):
+    """Return uniform random unit quaternion.
+
+    rand: array like or None
+        Three independent random variables that are uniformly distributed
+        between 0 and 1.
+
+    >>> q = random_quaternion()
+    >>> np.allclose(1, np.linalg.norm(q))
+    True
+    >>> q = random_quaternion(np.random.random(3))
+    >>> len(q.shape), q.shape[0]==4
+    (1, True)
+
+    @author: Christoph Gohlke
+    """
+    if rand is None:
+        rand = np.random.rand(3)
+    else:
+        assert len(rand) == 3
+    r1 = np.sqrt(1.0 - rand[0])
+    r2 = np.sqrt(rand[0])
+    pi2 = np.pi * 2.0
+    t1 = pi2 * rand[1]
+    t2 = pi2 * rand[2]
+    return np.array([np.cos(t2) * r2, np.sin(t1) * r1,
+                     np.cos(t1) * r1, np.sin(t2) * r2])
+
+
+def quaternion_matrix(quaternion, EPS=np.finfo(float).eps * 4.0):
+    """Return homogeneous rotation matrix from quaternion.
+
+    >>> M = quaternion_matrix([0.99810947, 0.06146124, 0, 0])
+    >>> np.allclose(M, rotation_matrix(0.123, [1, 0, 0]))
+    True
+    >>> M = quaternion_matrix([1, 0, 0, 0])
+    >>> np.allclose(M, np.identity(4))
+    True
+    >>> M = quaternion_matrix([0, 1, 0, 0])
+    >>> np.allclose(M, np.diag([1, -1, -1, 1]))
+    True
+
+    @author: Christoph Gohlke
+    """
+    q = np.array(quaternion, dtype=np.float64, copy=True)
+    n = np.dot(q, q)
+    if n < EPS:
+        return np.identity(4)
+    q *= np.sqrt(2.0 / n)
+    q = np.outer(q, q)
+    return np.array([
+        [1.0 - q[2, 2] - q[3, 3], q[1, 2] - q[3, 0], q[1, 3] + q[2, 0], 0.0],
+        [q[1, 2] + q[3, 0], 1.0 - q[1, 1] - q[3, 3], q[2, 3] - q[1, 0], 0.0],
+        [q[1, 3] - q[2, 0], q[2, 3] + q[1, 0], 1.0 - q[1, 1] - q[2, 2], 0.0],
+        [0.0, 0.0, 0.0, 1.0]])
+
+
+def random_rotation_matrix(rand=None):
+    """Return uniform random rotation matrix.
+
+    rand: array like
+        Three independent random variables that are uniformly distributed
+        between 0 and 1 for each returned quaternion.
+
+    >>> R = random_rotation_matrix()
+    >>> np.allclose(np.dot(R.T, R), np.identity(4))
+    True
+
+    @author: Christoph Gohlke
+    """
+    return quaternion_matrix(random_quaternion(rand))
+
+
 def is_same_transform(matrix0, matrix1):
     """Return True if two matrices perform same transformation.
 
+    >>> import numpy as np
     >>> is_same_transform(np.identity(4), np.identity(4))
     True
     >>> is_same_transform(np.identity(4), random_rotation_matrix())
     False
 
+    @author: Christoph Gohlke
     """
     matrix0 = np.array(matrix0, dtype=np.float64, copy=True)
     matrix0 /= matrix0[3, 3]
@@ -634,6 +709,7 @@ def is_same_transform(matrix0, matrix1):
 def unit_vector(data, axis=None, out=None):
     """Return ndarray normalized by length, i.e. Euclidean norm, along axis.
 
+    >>> import numpy as np
     >>> v0 = np.random.random(3)
     >>> v1 = unit_vector(v0)
     >>> np.allclose(v1, v0 / np.linalg.norm(v0))
@@ -656,6 +732,7 @@ def unit_vector(data, axis=None, out=None):
     >>> list(unit_vector([1]))
     [1.0]
 
+    @author: Christoph Gohlke
     """
     if out is None:
         data = np.array(data, dtype=np.float64, copy=True)
@@ -678,14 +755,15 @@ def unit_vector(data, axis=None, out=None):
 def rotation_matrix(angle, direction, point=None):
     """Return matrix to rotate about axis defined by point and direction.
 
-    >>> R = rotation_matrix(math.pi/2, [0, 0, 1], [1, 0, 0])
+    >>> import numpy as np
+    >>> R = rotation_matrix(np.pi/2, [0, 0, 1], [1, 0, 0])
     >>> np.allclose(np.dot(R, [0, 0, 0, 1]), [1, -1, 0, 1])
     True
-    >>> angle = (np.random.random() - 0.5) * (2*math.pi)
+    >>> angle = (np.random.random() - 0.5) * (2*np.pi)
     >>> direc = np.random.random(3) - 0.5
     >>> point = np.random.random(3) - 0.5
     >>> R0 = rotation_matrix(angle, direc, point)
-    >>> R1 = rotation_matrix(angle-2*math.pi, direc, point)
+    >>> R1 = rotation_matrix(angle-2*np.pi, direc, point)
     >>> is_same_transform(R0, R1)
     True
     >>> R0 = rotation_matrix(angle, direc, point)
@@ -693,12 +771,13 @@ def rotation_matrix(angle, direction, point=None):
     >>> is_same_transform(R0, R1)
     True
     >>> I = np.identity(4, np.float64)
-    >>> np.allclose(I, rotation_matrix(math.pi*2, direc))
+    >>> np.allclose(I, rotation_matrix(np.pi*2, direc))
     True
-    >>> np.allclose(2, np.trace(rotation_matrix(math.pi/2,
-    ...                                               direc, point)))
+    >>> np.allclose(2, np.trace(rotation_matrix(np.pi/2,
+    ...                                         direc, point)))
     True
 
+    @author: Christoph Gohlke
     """
     sina = np.sin(angle)
     cosa = np.cos(angle)

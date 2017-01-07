@@ -6,7 +6,6 @@
 from __future__ import division
 import vtk
 import numpy as np
-import matplotlib.pyplot as plt
 import vtk.util.numpy_support as ns
 
 import raytracer as ray
@@ -619,7 +618,6 @@ def pointsource(srf, simple=True):
             y = np.sin(phi) * np.sin(theta)
             z = np.cos(theta)
             tuples = tuples + ([(xx, yy, zz) for xx, yy, zz in zip(x, y, z)])
-            # plt.plot(x,y)
     intersection_points = vtk.vtkPoints()
     intersection_points.SetDataTypeToDouble()
     normal_vectors = vtk.vtkDoubleArray()

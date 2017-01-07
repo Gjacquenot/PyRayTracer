@@ -108,7 +108,7 @@ def stop(ren, appendFilter, srf1, srf2, scene):
         # Check if there are any intersections for the given ray
         if ray.isHit(obbsurf2, pointSurf1, pointRaySurf2):
             # Retrieve coordinates of intersection points and intersected cell ids
-            pointsInter, cellIdsInter = ray.GetIntersect(obbsurf2, pointSurf1, pointRaySurf2)
+            pointsInter, cellIdsInter = ray.getIntersect(obbsurf2, pointSurf1, pointRaySurf2)
             # print(cellIdsInter)
             # Render lines/rays emanating from the Source. Rays that intersect are
             ray.addLine(ren, appendFilter, pointSurf1, pointsInter[0], [1.0, 1.0, 0.0], opacity=0.25)
@@ -730,7 +730,7 @@ def trace(ren, appendFilter, srf1, srf2, addActor=True):
         # Check if there are any intersections for the given ray
         if ray.isHit(obbsurf2, pointSurf1, pointRaySurf2):
             # Retrieve coordinates of intersection points and intersected cell ids
-            pointsInter, cellIdsInter = ray.GetIntersect(obbsurf2, pointSurf1, pointRaySurf2)
+            pointsInter, cellIdsInter = ray.getIntersect(obbsurf2, pointSurf1, pointRaySurf2)
             # print(cellIdsInter)
             # ray.addPoint(ren, False, pointsInter[0], [0.5, 0.5, 0.5])
             # Render lines/rays emanating from the Source. Rays that intersect are

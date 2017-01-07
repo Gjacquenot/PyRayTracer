@@ -67,7 +67,7 @@ def isHit(obbTree, pSource, pTarget):
     return True
 
 
-def GetIntersect(obbTree, pSource, pTarget):
+def getIntersect(obbTree, pSource, pTarget):
     # Create an empty 'vtkPoints' object to store the intersection point coordinates
     points = vtk.vtkPoints()
     points.SetDataTypeToDouble()
@@ -442,7 +442,7 @@ def refract(ren, appendFilter, surface1, surface2):
         # Check if there are any intersections for the given ray
         if isHit(obbsurf2, pointSurf1, pointRaySurf2):
             # Retrieve coordinates of intersection points and intersected cell ids
-            pointsInter, cellIdsInter = GetIntersect(obbsurf2, pointSurf1, pointRaySurf2)
+            pointsInter, cellIdsInter = getIntersect(obbsurf2, pointSurf1, pointRaySurf2)
             # Render lines/rays emanating from the Source. Rays that intersect are
             addLine(ren, appendFilter, pointSurf1, pointsInter[0], ColorRay, opacity=0.25)
             # Render intersection points
@@ -566,7 +566,7 @@ def reflect(ren, appendFilter, surface1, surface2):
         # Check if there are any intersections for the given ray
         if isHit(obbsurf2, pointSurf1, pointRaySurf2):
             # Retrieve coordinates of intersection points and intersected cell ids
-            pointsInter, cellIdsInter = GetIntersect(obbsurf2, pointSurf1, pointRaySurf2)
+            pointsInter, cellIdsInter = getIntersect(obbsurf2, pointSurf1, pointRaySurf2)
             # Render lines/rays emanating from the Source. Rays that intersect are
             addLine(ren, appendFilter, pointSurf1, pointsInter[0], ColorRay, opacity=0.25)
             # Render intersection points

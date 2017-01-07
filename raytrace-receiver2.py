@@ -92,7 +92,7 @@ def getnormals(surf, vertices=False, flip=False):
         return normal_polydata, normalcellcenters.GetOutput()
 
 
-def stop(ren, appendFilter, srf1, srf2, scene):
+def stop(ren, appendFilter, srf1, srf2):
     # rays between two surfaces. A stop.
     obbsurf2 = vtk.vtkOBBTree()
     obbsurf2.SetDataSet(srf2['surface'].GetOutput())
@@ -801,7 +801,7 @@ def run(surfaces, project, Directory, scene, refine=True, plot=True):
                 renWin.Render()
         elif tri == len(surfaces) - 1:
             surfaces[tri] = shape(ren, appendFilter, surfaces[tri], addActor=False)     # TODO should be True
-            surfaces[tri]['raypoints'] = stop(ren, appendFilter, surfaces[tri - 1], surfaces[tri], scene)
+            surfaces[tri]['raypoints'] = stop(ren, appendFilter, surfaces[tri - 1], surfaces[tri])
             renWin.Render()
             print('Tracing {0} and {1}'.format(tri - 1, tri))
         else:

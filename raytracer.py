@@ -70,6 +70,7 @@ def isHit(obbTree, pSource, pTarget):
 def GetIntersect(obbTree, pSource, pTarget):
     # Create an empty 'vtkPoints' object to store the intersection point coordinates
     points = vtk.vtkPoints()
+    points.SetDataTypeToDouble()
     # Create an empty 'vtkIdList' object to store the ids of the cells that intersect
     # with the cast rays
     cellIds = vtk.vtkIdList()

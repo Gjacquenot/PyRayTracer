@@ -207,12 +207,7 @@ def asphere(srf):
     dr = (srf['diameter']) / 2 / (srf['resolution'] - 1)  # radius
     R = srf['coeffs']['R']
     k = srf['coeffs']['k']
-    A2 = srf['coeffs']['A2']
-    A4 = srf['coeffs']['A4']
-    A6 = srf['coeffs']['A6']
-    A8 = srf['coeffs']['A8']
-    A10 = srf['coeffs']['A10']
-    A12 = srf['coeffs']['A12']
+    polyVal = lambda x: sum([srf['coeffs']['A' + str(p)] * x**p for p in range(2, 14, 2)])
     sizep = [sum([1 + x * 5 for x in range(srf['resolution'])]), 3]
     array_xyz = np.empty(sizep)
     cnt = 0
@@ -222,7 +217,7 @@ def asphere(srf):
             r = dr * ii
             xx = np.sin(np.pi * phi) * r
             yy = np.cos(np.pi * phi) * r
-            zz = r**2 / (R * (1 + np.sqrt(1 - (1 + k) * r**2 / R**2))) + A2 * r**2 + A4 * r**4 + A6 * r**6 + A8 * r**8 + A10 * r**10 + A12 * r**12
+            zz = r**2 / (R * (1 + np.sqrt(1 - (1 + k) * r**2 / R**2))) + polyVal(r)
             array_xyz[cnt] = np.array([xx, yy, zz])
             cnt += 1
 
@@ -269,7 +264,7 @@ def asphere(srf):
                         r = d2r * ii
                         xx = np.sin(np.pi * phi) * r
                         yy = np.cos(np.pi * phi) * r
-                        zz = r**2 / (R * (1 + np.sqrt(1 - (1 + k) * r**2 / R**2))) + A2 * r**2 + A4 * r**4 + A6 * r**6 + A8 * r**8 + A10 * r**10 + A12 * r**12
+                        zz = r**2 / (R * (1 + np.sqrt(1 - (1 + k) * r**2 / R**2))) + polyVal(r)
                         arr2nd_xyz[cnt] = np.array([xx, yy, zz])
                         cnt += 1
             else:
@@ -282,7 +277,7 @@ def asphere(srf):
                         r = d2r * ii
                         xx = np.sin(np.pi * phi) * r
                         yy = np.cos(np.pi * phi) * r
-                        zz = r**2 / (R * (1 + np.sqrt(1 - (1 + k) * r**2 / R**2))) + A2 * r**2 + A4 * r**4 + A6 * r**6 + A8 * r**8 + A10 * r**10 + A12 * r**12
+                        zz = r**2 / (R * (1 + np.sqrt(1 - (1 + k) * r**2 / R**2))) + polyVal(r)
                         arr2nd_xyz[cnt] = np.array([xx, yy, zz])
                         cnt += 1
 

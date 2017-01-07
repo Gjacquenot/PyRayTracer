@@ -11,6 +11,10 @@ import vtk.util.numpy_support as ns
 
 import raytracer as ray
 
+cosd = lambda angle: np.cos(angle / 180 * np.pi)
+sind = lambda angle: np.sin(angle / 180 * np.pi)
+tand = lambda angle: np.tan(angle / 180 * np.pi)
+
 
 def glyphs(cells, color=[1.0, 1.0, 1.0], size=1):
     # Visualize normals as done previously but using refracted or reflected cells
@@ -668,7 +672,7 @@ def shape(ren, appendFilter, srf, addActor=False):
     elif srf['shape'] == 'pointsource':
         pass
     else:
-        print('Couldnt understand shape')
+        print("Couldn't understand shape")
         return
     if addActor:
         surfaceActor(ren, appendFilter, srf)
@@ -680,7 +684,7 @@ def trace(ren, appendFilter, srf1, srf2, addActor=True):
     obbsurf2.SetDataSet(srf2['surface'].GetOutput())
     obbsurf2.BuildLocator()
     # I dont know from where the ray is coming, use 'curv' for this as a hack
-    if srf2['shape'] == "sphere":
+    if srf2['shape'] == 'sphere':
         if srf2['curv'] == 'positive':
             Flip = False
         elif srf2['curv'] == 'negative':
@@ -872,10 +876,10 @@ def main():
 
     surfaces = [{'type': 'source',
                  'shape': 'flat',
-                 'center': [np.sin(angle / 180 * np.pi) * si, 0.0, si - np.cos(angle / 180 * np.pi) * si],
-                 'width': 2 * np.tan(0.1 / 180 * np.pi) * si,    #
-                 'height': 2 * np.tan(4.44 / 180 * np.pi) * si,  # could be anything really
-                 'rotateWXYZ': [-angle, 0, 1, 0],                # Normal is [0, 0, -1]
+                 'center': [sind(angle) * si, 0.0, si - cosd(angle) * si],
+                 'width': 2 * tand(0.1) * si,       #
+                 'height': 2 * tand(4.44) * si,     # could be anything really
+                 'rotateWXYZ': [-angle, 0, 1, 0],   # Normal is [0, 0, -1]
                  'rn': 1.0},
                 {'type': 'lens',
                  'shape': 'cylinder',

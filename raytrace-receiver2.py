@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jun 11 15:56:37 2015
-
-@author: jaap
+@author: Jaap Verheggen, Guillaume Jacquenot
 """
 
 from __future__ import division

@@ -20,7 +20,7 @@ ColorRay = [1.0, 1.0, 0.0]
 ColorRayMiss = [1.0, 1.0, 1.0]
 
 
-def addPoint(ren, p, color=[0.0, 0.0, 0.0], radius=0.2):
+def addPoint(ren, p, color=(0.0, 0.0, 0.0), radius=0.2):
     point = vtk.vtkSphereSource()
     point.SetCenter(p)
     point.SetRadius(radius)
@@ -37,7 +37,7 @@ def addPoint(ren, p, color=[0.0, 0.0, 0.0], radius=0.2):
     ren.AddActor(actor)
 
 
-def addLine(ren, appendFilter, p1, p2, color=[0.0, 0.0, 1.0], opacity=1.0):
+def addLine(ren, appendFilter, p1, p2, color=(0.0, 0.0, 1.0), opacity=1.0):
     line = vtk.vtkLineSource()
     line.SetPoint1(p1)
     line.SetPoint2(p2)

@@ -19,9 +19,9 @@ install:
   - sudo pip install nose
 script:
   - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then
-        nosetests;
+        nosetests --with-doctest;
     else
-        nosetests3;
+        nosetests3 --with-doctest;
     fi
 
 #language: python

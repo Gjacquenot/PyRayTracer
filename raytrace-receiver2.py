@@ -16,7 +16,7 @@ sind = lambda angle: np.sin(angle / 180 * np.pi)
 tand = lambda angle: np.tan(angle / 180 * np.pi)
 
 
-def glyphs(cells, color=[1.0, 1.0, 1.0], size=1):
+def glyphs(cells, color=(1.0, 1.0, 1.0), size=1):
     # Visualize normals as done previously but using refracted or reflected cells
     arrow = vtk.vtkArrowSource()
     glyphCell = vtk.vtkGlyph3D()

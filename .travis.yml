@@ -20,9 +20,9 @@ install:
   - sudo pip install coveralls
 script:
   - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then
-        nosetests --with-doctest --with-coverage;
+        nosetests --with-doctest --with-coverage --cover-package=raytracer;
     else
-        nosetests3 --with-doctest --with-coverage;
+        nosetests3 --with-doctest --with-coverage --cover-package=raytracer;
     fi
 after_success:
     coveralls

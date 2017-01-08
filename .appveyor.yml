@@ -4,8 +4,9 @@ environment:
   matrix:
     - PYTHON_VERSION: 2.7
       MINICONDA: C:\Miniconda
-    - PYTHON_VERSION: 3.4
-      MINICONDA: C:\Miniconda3
+# VTK is not shipped Miniconda3
+#    - PYTHON_VERSION: 3.4
+#      MINICONDA: C:\Miniconda3
 
 init:
   - "ECHO %PYTHON_VERSION% %MINICONDA%"

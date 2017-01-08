@@ -2,6 +2,7 @@
 
 [![Travis][buildstatus_image_travis]][travisci]
 [![Code Health](https://landscape.io/github/Gjacquenot/PyRayTracer/master/landscape.png)](https://landscape.io/github/Gjacquenot/PyRayTracer)
+[![Coverage Status](https://coveralls.io/repos/github/Gjacquenot/PyRayTracer/badge.svg?branch=master)](https://coveralls.io/github/Gjacquenot/PyRayTracer?branch=master)
 
 Preliminary code for ray tracing with Python and VTK
 

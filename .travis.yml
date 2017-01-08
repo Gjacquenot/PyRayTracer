@@ -17,12 +17,15 @@ before_install:
 install:
   - sudo pip install pep8
   - sudo pip install nose
+  - sudo pip install coveralls
 script:
   - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then
-        nosetests --with-doctest;
+        nosetests --with-doctest --with-coverage;
     else
-        nosetests3 --with-doctest;
+        nosetests3 --with-doctest --with-coverage;
     fi
+after_success:
+    coveralls
 
 #language: python
 #python:
